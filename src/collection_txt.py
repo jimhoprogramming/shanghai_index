@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import urllib3
 from urllib import request
 import json
 import re
-import bs4
+from bs4 import BeautifulSoup
 import os
 import configparser
 
@@ -14,18 +13,19 @@ def read_url_aimname():
     if os.path.exists(os.path.join(os.getcwd(), config_file_url)):
         config = configparser.ConfigParser()
         config.read(config_file_url)
-        data = config.get('Text_Feature', 'feature1')
+        data = config.get('Text_Feature', 'feature1_3')
         #print(data)
         #data_list = re.split(r',',data)
-        data_list = eval(data)
-    return data_list
+        one_url = eval(data)
+    return one_url
 
 # 访问网站取得数据
-def get_value(url_list):
-    for i in range(len(url_list)):
-        if i>0:
+def get_value(one_url):
+    find_condition = []
+    for i in range(len(one_url)):
+        if i == 1 :
             # 判断http 或 https
-            url = url_list[i]
+            url = one_url[i]
             #print(url)
             http = re.findall('^.*:', url)
             # 访问
@@ -37,14 +37,13 @@ def get_value(url_list):
                 code = getCoding(context)
                 #print(code)
                 page = context.decode(code)
-                print(page)
-            elif http[0] == 'https:':
-                print('pass')
-                print(url)
-            else:
-                print('no http')
-                print(url)
-    return True
+                #print(page)
+        if i > 1 :
+            find_condition.append(one_url[i])
+    # 提取有用信息
+    print(find_condition)
+    return take_useful_message(page, find_condition)           
+    
 
 
 # 检查返回内容的编码格式 
@@ -63,7 +62,25 @@ def getCoding(strInput):
     except:
         pass
 
+
+# 提取齐整有用信息去掉枝节
+def take_useful_message(html_origin, condition):
+    data = []
+    soup = BeautifulSoup(html_origin, 'html.parser')
+    body = soup.body
+    #print(body)
+    print(condition[0])
+    print(condition[1])
+    tag = body.find_all(condition[0], condition[1])
+    for message in tag:
+        #print(message.get_text())
+        data = message.get_text().split()
+    print(u'data len are : {}'.format(len(data)))
+    return data
+    
+
 if __name__=='__main__':
     b= read_url_aimname()
+    print(b)
     print(get_value(b))
-    #print(clear_data(get_value(b),c))
+    
