@@ -1,0 +1,4 @@
+digraph{
+get_urls -> urls_list -> get_value -> take_useful_message -> data_list;
+data_list ->  write_to_file -> make_pandas -> file_name -> urls_list [lable = "loop"];
+}
