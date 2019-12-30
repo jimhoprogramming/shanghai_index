@@ -8,6 +8,7 @@ import os
 import configparser
 import numpy as np
 import pandas as pd
+import datetime as dt
 
 # 读取config.cfg文件得到动态的网址list
 def get_urls():
@@ -47,7 +48,7 @@ def get_value(one_url):
             find_condition.append(one_url[i])
     # 提取有用信息
     #print(find_condition)
-    return take_useful_message(page, find_condition, mode = 2)           
+    return take_useful_message(page, find_condition, mode = find_condition[-1])           
     
 
 
@@ -114,7 +115,26 @@ def take_useful_message(html_origin, condition, mode = 0):
                     rel = text
                 temp_data.append(rel)
             data = temp_data
-            #print(data)
+    elif mode == 3:
+        tag = body.find_all(condition[0], condition[1])
+        for message in tag:
+            data = message.get_text().split()
+            # 将正文日期变更为统一的横线日期格式
+            temp_data = []
+            find_data_obj_1 = re.compile(r'\d{2,4}\D*\d{0,2}\D*\d{0,2}\D*', flags = 0)
+            find_data_obj_2 = re.compile(r'\d{1,2}*[小时,分钟]以前', flags = 0)
+            for text in data:
+                rel = find_data_obj_1.match(text)
+                if rel and len(text)<=11:
+                    date_text = re.sub(r'\D',r'-',rel.group())
+                    rel = date_text[0:10]
+                elif find_data_obj_2.match(text):
+                    rel = str(dt.datetime.now().year) + r'-' + str(dt.datetime.now().month) + r'-' + str(dt.datetime.now().day) 
+                else:
+                    rel = text
+                temp_data.append(rel)
+            data = temp_data
+            print(data)
     print(u'data len are : {}'.format(len(data)))
     return data
 
