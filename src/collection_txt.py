@@ -9,6 +9,7 @@ import configparser
 import numpy as np
 import pandas as pd
 import datetime as dt
+import tushare as ts
 
 # 读取config.cfg文件得到动态的网址list
 def get_urls():
@@ -170,8 +171,40 @@ def make_pandas(date_list, text_list, mode, file_name):
             df = pd.read_csv(file_name,encoding = 'utf-8', index_col = 0)
             rel = pd.concat([df, rel], axis = 0, ignore_index = True)
     return rel
+
+def StrDateAdd(strDate,n):
+    '''
+        功能：日期字串加减
+    '''    
+    #字串变datetime        
+    DateTimeObj=dt.datetime.strptime(strDate,'%Y-%m-%d')
+    #实现加减
+    TempDateTimeObj = DateTimeObj + dt.timedelta(days=n)
+    Rel=dt.datetime.strftime(TempDateTimeObj,'%Y-%m-%d')
+    return Rel
+
+def get_tushare_txt(date, file_name = '', mode = 'append'):
+    # init
+    pro = ts.pro_api(token = '51d649f02caf6313a891d2f30d6222bfa246067d382641ddadbc3365')
+    start_date = str(date) + ' ' + '00:00:00'
+    end_date = StrDateAdd(date,1) + ' ' + '00:00:00'
+    # get df
+    rel = pro.major_news(src = '', start_date = start_date, end_date = end_date)  # fields='title,content'
+    # adjust
+    rel['pub_time'] = rel['pub_time'].apply(lambda s:s[0:10])
+    new_df = pd.DataFrame({'date':rel['pub_time'].tolist(), 'text':rel['title'].tolist()})
+    if mode == 'create':
+        pass
+    else:        
+        df = pd.read_csv(file_name,encoding = 'utf-8', index_col = 0)
+        rel = pd.concat([df, new_df], axis = 0, ignore_index = True)
+        rel.to_csv(file_name, encoding = 'utf-8')
+    return new_df
+    
+
         
 if __name__=='__main__':
+    '''
     urls_list = get_urls()
     n = 0
     for url in urls_list:
@@ -183,4 +216,6 @@ if __name__=='__main__':
             mode = 'append'
         write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)
         n += 1
-    
+    '''
+    a = get_tushare_txt(date = '2020-02-01', file_name = './store_text.csv', mode = 'append')
+    print(a)
