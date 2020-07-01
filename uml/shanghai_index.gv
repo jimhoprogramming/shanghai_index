@@ -1,0 +1,27 @@
+digraph shanghai_index{
+
+collection_data;
+collection_txt;
+creat_cfg;
+predict;
+train;
+write_cfg;
+config;
+
+	subgraph  template{
+	label = "文件夹 ";
+	bgcolor="blue";
+	date_goverment_index;
+	date_netmessage_index;
+	date_perf_report_index;
+	date_inte_situation_index;
+	date_mili_situation_index;
+	}
+	
+collection_txt  -> config ;
+config -> date_goverment_index; 
+config -> date_netmessage_index;
+config -> date_perf_report_index;
+config -> date_inte_situation_index;
+config -> date_mili_situation_index;
+}
