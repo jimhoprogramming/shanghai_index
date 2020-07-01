@@ -120,10 +120,11 @@ def take_useful_message(html_origin, condition, mode = 0):
         tag = body.find_all(condition[0], condition[1])
         for message in tag:
             data = message.get_text().split()
+            print(data)
             # 将正文日期变更为统一的横线日期格式
             temp_data = []
             find_data_obj_1 = re.compile(r'\d{2,4}\D*\d{0,2}\D*\d{0,2}\D*', flags = 0)
-            find_data_obj_2 = re.compile(r'\d{1,2}*[小时,分钟]以前', flags = 0)
+            find_data_obj_2 = re.compile(r'[小时,分钟]以前', flags = 0)
             for text in data:
                 rel = find_data_obj_1.match(text)
                 if rel and len(text)<=11:
@@ -204,7 +205,7 @@ def get_tushare_txt(date, file_name = '', mode = 'append'):
 
         
 if __name__=='__main__':
-    '''
+    
     urls_list = get_urls()
     n = 0
     for url in urls_list:
@@ -217,5 +218,6 @@ if __name__=='__main__':
         write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)
         n += 1
     '''
-    a = get_tushare_txt(date = '2020-02-01', file_name = './store_text.csv', mode = 'append')
+    a = get_tushare_txt(date = '2020-06-30', file_name = './store_text.csv', mode = 'append')
     print(a)
+    '''
