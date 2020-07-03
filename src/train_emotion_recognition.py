@@ -16,7 +16,7 @@ def load_vec_to_memory():
         i += 1
         values = line.split()
         word = values[0]
-        #print(u'{}:{}'.format(i,word))
+        print(u'{}:{}'.format(i,word))
         embeddings_index[word] = np.asarray(values[1:], dtype='float32')
     f.close()
     return embeddings_index
