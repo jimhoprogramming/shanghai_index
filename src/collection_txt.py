@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import tushare as ts
+import threading
 
 # 读取config.cfg文件得到动态的网址list
 def get_urls():
@@ -120,7 +121,7 @@ def take_useful_message(html_origin, condition, mode = 0):
         tag = body.find_all(condition[0], condition[1])
         for message in tag:
             data = message.get_text().split()
-            print(data)
+            #print(data)
             # 将正文日期变更为统一的横线日期格式
             temp_data = []
             find_data_obj_1 = re.compile(r'\d{2,4}\D*\d{0,2}\D*\d{0,2}\D*', flags = 0)
@@ -136,7 +137,7 @@ def take_useful_message(html_origin, condition, mode = 0):
                     rel = text
                 temp_data.append(rel)
             data = temp_data
-            print(data)
+            #print(data)
     print(u'data len are : {}'.format(len(data)))
     return data
 
@@ -161,7 +162,7 @@ def write_to_file(data_list, file_name, mode = 'create'):
     rel = make_pandas(date_list, text_list, mode = mode, file_name = file_name)
     #print(rel)
     rel.to_csv(file_name, encoding = 'utf-8')
-    return True
+    return len(data_list)
 
 def make_pandas(date_list, text_list, mode, file_name):    
     if len(date_list) == len(text_list):
@@ -202,8 +203,26 @@ def get_tushare_txt(date, file_name = '', mode = 'append'):
         rel.to_csv(file_name, encoding = 'utf-8')
     return new_df
     
+def netbugger(url, mode = 'append'):
+    x = get_value(one_url = url)
+    return write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)    
+    
 
-        
+class bugger_thread(threading.Thread):
+    def __init__(self, target, args = ()):
+        super(bugger_thread, self).__init__(target = target, args = args, daemon = True)
+        self.func = target
+        self.args = args
+        self.result = None
+    def run(self):
+        self.result = self.func(*self.args)
+    def get_result(self):
+        try:
+            return self.result
+        except Exception as e:
+            return None
+
+
 if __name__=='__main__':
     
     urls_list = get_urls()
