@@ -82,7 +82,10 @@ def sentence_to_word_list(sentence):
 
 
 # 载入模型
-
+def define_model():
+    model = model(Tx, Ty, n_a, n_s, len(human_vocab), len(machine_vocab))
+    opt = Adam(lr = 0.005, beta_1=0.9, beta_2=0.999, decay = 0.01)
+    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
 
 # 初始化参数
@@ -91,7 +94,8 @@ def sentence_to_word_list(sentence):
 
 
 # 实施训练
-
+def run_train(model):
+    model.fit([Xoh, s0, c0], outputs, epochs=1, batch_size=100)
 
 
 if __name__ == '__main__':
