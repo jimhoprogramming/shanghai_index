@@ -3,6 +3,7 @@
 import numpy as np 
 import sqlite3
 import jieba
+import emotion_model
 
 pre_trained_vector_files_url = 'c://w2v.txt'
 db_url = 'c://data//all.db'
@@ -83,7 +84,8 @@ def sentence_to_word_list(sentence):
 
 # 载入模型
 def define_model():
-    model = model(Tx, Ty, n_a, n_s, len(human_vocab), len(machine_vocab))
+    model = BiRNN(vocab = 100, embed_size = 200, num_hiddens = 2, num_layers = 2)
+
     opt = Adam(lr = 0.005, beta_1=0.9, beta_2=0.999, decay = 0.01)
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
 
