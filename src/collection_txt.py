@@ -164,6 +164,8 @@ def write_to_file(data_list, file_name, mode = 'create'):
     rel.to_csv(file_name, encoding = 'utf-8')
     return len(data_list)
 
+    
+
 def make_pandas(date_list, text_list, mode, file_name):    
     if len(date_list) == len(text_list):
         rel = pd.DataFrame(data = {'date':date_list, 'text':text_list}, index = np.arange(len(date_list)))

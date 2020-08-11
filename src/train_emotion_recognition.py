@@ -4,6 +4,8 @@ import numpy as np
 import sqlite3
 import jieba
 import emotion_model
+import pandas as pd
+from mxnet import nd
 
 pre_trained_vector_files_url = 'c://w2v.txt'
 db_url = 'c://data//all.db'
@@ -78,6 +80,8 @@ def sentence_to_word_list(sentence):
     seg_list = jieba.lcut_for_search(sentence)  
     return seg_list
 
+
+
 # 载入训练集
 
 
@@ -88,28 +92,51 @@ def define_model():
 
     opt = Adam(lr = 0.005, beta_1=0.9, beta_2=0.999, decay = 0.01)
     model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-
+    return model
 
 # 初始化参数
-
-
-
 
 # 实施训练
 def run_train(model):
     model.fit([Xoh, s0, c0], outputs, epochs=1, batch_size=100)
+    return True
+
+# 读取数据文件，返回文本数据x，y
+def read_text_data(url):
+    x = pd.read_csv(url, encoding = 'utf-8', index_col = 0)
+    y = np.random.random_integers(0,1,x.shape[0])
+    return x,y
+
+
+# 截断或补全处理一句话
+def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
+    max_l = 500  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
+
+    def pad(x):
+        return x[:max_l] if len(x) > max_l else x + [one_word_to_vector(words = ['空格'])] * (max_l - len(x))
+
+    tokenized_data = [one_word_to_vector(sentence_to_word_list(one_line)) for one_line in x]
+    features = nd.array([pad(x) for x in tokenized_data])
+    labels = y
+    return features, labels
+
 
 
 if __name__ == '__main__':
+    # test old load w2v way
 ##    embeddings_index = load_vec_to_memory()
 ##    dest_word = '上证指数'
 ##    vector = one_word_to_vec(dest_word = dest_word, embeddings_index = embeddings_index)
 ##    print(u'词语：{}的向量值是:{}'.format(dest_word, vector))
 ##    text_to_sql()
 ##    create_word_index()
+
+    # test sql way w2v
     words = sentence_to_word_list('今天上山打老虎。')
     v_list = one_word_to_vector(words = words)
     for v in v_list:
         print(v.shape)
 
-
+    # test fill sentances to 500 word
+    x, y = read_text_data(url = './store_text.csv') 
+    a, b = preprocess_imdb(x, y)
