@@ -60,13 +60,16 @@ def one_word_to_vector(words):
     cur = sql_db.cursor()
     result = []
     for w in words:
-        print(w)
         cur.execute("select vectors from w2v where word='%s'"%(w))
+        last_v = None
         for v in cur:
-##            print(v)
-##            print(type(v))
-            v = np.asarray(eval(v[0]), dtype='float32')
-            result.append(v)
+            last_v = np.asarray(eval(v[0]), dtype='float32')
+        # no return then give unk
+        if last_v is None:
+            cur.execute("select vectors from w2v where word='%s'"%('空缺'))
+            for v in cur:
+                last_v = np.asarray(eval(v[0]), dtype='float32')
+        result.append(last_v)        
     cur.close()
     sql_db.close()
     return result
@@ -104,19 +107,19 @@ def run_train(model):
 # 读取数据文件，返回文本数据x，y
 def read_text_data(url):
     x = pd.read_csv(url, encoding = 'utf-8', index_col = 0)
-    y = np.random.random_integers(0,1,x.shape[0])
+    x = x['text'].tolist()
+    y = np.random.random_integers(0,1,len(x))
     return x,y
 
 
 # 截断或补全处理一句话
 def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
-    max_l = 500  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
-
+    max_l = 30  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
     def pad(x):
-        return x[:max_l] if len(x) > max_l else x + [one_word_to_vector(words = ['空格'])] * (max_l - len(x))
+        return x[:max_l] if len(x) > max_l else x + [u'空格'] * (max_l - len(x))
 
-    tokenized_data = [one_word_to_vector(sentence_to_word_list(one_line)) for one_line in x]
-    features = nd.array([pad(x) for x in tokenized_data])
+    tokenized_data = [one_word_to_vector(pad(sentence_to_word_list(one_line))) for one_line in x]
+    features = nd.array(tokenized_data)
     labels = y
     return features, labels
 
@@ -132,11 +135,14 @@ if __name__ == '__main__':
 ##    create_word_index()
 
     # test sql way w2v
-    words = sentence_to_word_list('今天上山打老虎。')
-    v_list = one_word_to_vector(words = words)
-    for v in v_list:
-        print(v.shape)
+##    words = sentence_to_word_list('今天上山打老虎。')
+##    v_list = one_word_to_vector(words = words)
+##    for v in v_list:
+##        print(v.shape)
+##       
 
     # test fill sentances to 500 word
-    x, y = read_text_data(url = './store_text.csv') 
+    x, y = read_text_data(url = './store_text.csv')
+    print(u'feture len:{}'.format(len(x)))
     a, b = preprocess_imdb(x, y)
+    print(u'regured x shape :{}.y shape:{}'.format(a.shape,b.shape))
