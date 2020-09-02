@@ -3,12 +3,17 @@
 import numpy as np 
 import sqlite3
 import jieba
-import emotion_model
+from emotion_model import BiRNN 
 import pandas as pd
-from mxnet import nd
+from mxnet import nd, gluon, init, cpu
+from mxnet.gluon import data as gdata, loss as gloss 
+import re
+import d2l
+
 
 pre_trained_vector_files_url = 'c://w2v.txt'
 db_url = 'c://data//all.db'
+train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
 
 # 提取中文向量数据矩阵: 所有关键词提取300d向量到内存变量暂存
 def load_vec_to_memory():
@@ -60,6 +65,8 @@ def one_word_to_vector(words):
     cur = sql_db.cursor()
     result = []
     for w in words:
+        
+        #print(w)
         cur.execute("select vectors from w2v where word='%s'"%(w))
         last_v = None
         for v in cur:
@@ -74,54 +81,93 @@ def one_word_to_vector(words):
     sql_db.close()
     return result
 
+# 去除sql3不接受的字符
+def drop_char(word):
+    a = re.findall(r'\w*', word, re.S) 
+    return a[0]
+
+
 # 实现词语转换成向量
 def one_word_to_vec(dest_word, embeddings_index):
     return embeddings_index[dest_word]
 
 # 把一句话以词的形式分开成一列表
 def sentence_to_word_list(sentence):
-    seg_list = jieba.lcut_for_search(sentence)  
+    seg_list = jieba.lcut_for_search(sentence)
+    seg_list = [drop_char(word = w) for w in seg_list]
+    #print(seg_list)
     return seg_list
-
-
-
-# 载入训练集
-
-
-
-# 载入模型
-def define_model():
-    model = BiRNN(vocab = 100, embed_size = 200, num_hiddens = 2, num_layers = 2)
-
-    opt = Adam(lr = 0.005, beta_1=0.9, beta_2=0.999, decay = 0.01)
-    model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-    return model
-
-# 初始化参数
-
-# 实施训练
-def run_train(model):
-    model.fit([Xoh, s0, c0], outputs, epochs=1, batch_size=100)
-    return True
 
 # 读取数据文件，返回文本数据x，y
 def read_text_data(url):
-    x = pd.read_csv(url, encoding = 'utf-8', index_col = 0)
-    x = x['text'].tolist()
-    y = np.random.random_integers(0,1,len(x))
+    data = pd.read_csv(url, encoding = 'utf-8')
+    #x = x['text'].tolist()
+    x = data['review'].tolist()
+    #y = np.random.random_integers(0,1,len(x))
+    y = data['label'].tolist()
     return x,y
 
 
 # 截断或补全处理一句话
 def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
-    max_l = 30  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
+    max_l = 200  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
     def pad(x):
         return x[:max_l] if len(x) > max_l else x + [u'空格'] * (max_l - len(x))
 
-    tokenized_data = [one_word_to_vector(pad(sentence_to_word_list(one_line))) for one_line in x]
+    tokenized_data = one_word_to_vector(pad(sentence_to_word_list(x)))
     features = nd.array(tokenized_data)
-    labels = y
+    labels = nd.array([y])
     return features, labels
+
+
+# 建立迭代器
+def create_iter():
+    # 为缓解速度问题打散数据在先，提取词向量在后
+    batch_size = 8
+    s_t_d_obj = short_time_dataset(train_data_url)
+    train_iter = gdata.DataLoader(s_t_d_obj, batch_size, shuffle = True)
+    return train_iter
+
+# 自建一个按次提取的数据集
+class short_time_dataset(gdata.Dataset):
+    def __init__(self, url):
+        super(short_time_dataset, self).__init__()
+        self.data = pd.read_csv(url, encoding = 'utf-8')        
+    def __len__(self):
+        #print(self.data.shape[0])
+        return self.data.shape[0]
+    def __getitem__(self, idx):
+        #print(idx)
+        x = self.data.iloc[idx,1]
+        y = self.data.iloc[idx,0]
+        #print(x)
+        #print(y)
+        x, y = preprocess_imdb(x, y)
+        #print(x.shape)
+        #print(y.shape)
+        #y = nd.one_hot(y,4)
+        #y = nd.squeeze(y)
+        return x, y
+        
+
+# 载入模型
+def define_model():
+    model = BiRNN(vocab = 200, embed_size = 300, num_hiddens = 200, num_layers = 2)
+    lr, num_epochs = 0.01, 5
+    model.initialize(init.Xavier(), ctx=cpu())
+    trainer = gluon.Trainer(model.collect_params(), 'adam', {'learning_rate':lr})
+    loss = gloss.SoftmaxCrossEntropyLoss()
+    return model, trainer, loss
+
+# 初始化参数
+
+# 实施训练
+def run_train(model, data, trainer, loss, num_epochs, ctx):
+    test_iter = data
+    d2l.train(data, test_iter, model, loss, trainer, ctx, num_epochs)
+    return model
+    #
+
 
 
 
@@ -142,7 +188,19 @@ if __name__ == '__main__':
 ##       
 
     # test fill sentances to 500 word
-    x, y = read_text_data(url = './store_text.csv')
-    print(u'feture len:{}'.format(len(x)))
-    a, b = preprocess_imdb(x, y)
-    print(u'regured x shape :{}.y shape:{}'.format(a.shape,b.shape))
+##    x, y = read_text_data(url = './store_text.csv')
+##    print(u'feture len:{}'.format(len(x)))
+##    a, b = preprocess_imdb(x, y)
+##    print(u'regured x shape :{}.y shape:{}'.format(a.shape,b.shape))
+
+    # test iter
+##    iteror = create_iter()
+##    for x,y in iteror:
+##        print('X', x.shape, 'y', y.shape)
+##        break
+##    '#batches:', len(iteror)
+
+    # test model
+    iteror = create_iter()
+    model, trainer, loss = define_model()
+    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 5, ctx = cpu())
