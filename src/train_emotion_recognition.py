@@ -8,12 +8,15 @@ import pandas as pd
 from mxnet import nd, gluon, init, cpu
 from mxnet.gluon import data as gdata, loss as gloss 
 import re
-import d2l
+#import d2l
 
 
-pre_trained_vector_files_url = 'c://w2v.txt'
-db_url = 'c://data//all.db'
-train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
+##pre_trained_vector_files_url = 'c://w2v.txt''
+pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
+##db_url = 'c://data//all.db'
+db_url = '//home//jim//shanghai_index//data//all.db'
+##train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
+train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
 
 # 提取中文向量数据矩阵: 所有关键词提取300d向量到内存变量暂存
 def load_vec_to_memory():
@@ -123,7 +126,7 @@ def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
 # 建立迭代器
 def create_iter():
     # 为缓解速度问题打散数据在先，提取词向量在后
-    batch_size = 8
+    batch_size = 32
     s_t_d_obj = short_time_dataset(train_data_url)
     train_iter = gdata.DataLoader(s_t_d_obj, batch_size, shuffle = True)
     return train_iter
@@ -177,6 +180,8 @@ if __name__ == '__main__':
 ##    dest_word = '上证指数'
 ##    vector = one_word_to_vec(dest_word = dest_word, embeddings_index = embeddings_index)
 ##    print(u'词语：{}的向量值是:{}'.format(dest_word, vector))
+
+    # create sql data using sql to do
 ##    text_to_sql()
 ##    create_word_index()
 

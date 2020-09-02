@@ -20,12 +20,12 @@ class BiRNN(nn.Block):
         # rnn.LSTM只传入输入embeddings，因此只返回最后一层的隐藏层在各时间步的隐藏状态。
         # outputs形状是(词数, 批量大小, 2 * 隐藏单元个数)
         outputs = self.encoder(embeddings)
-        print(outputs[0].shape)
-        print(outputs[1].shape)
+        #print(outputs[0].shape)
+        #print(outputs[1].shape)
         # 连结初始时间步和最终时间步的隐藏状态作为全连接层输入。它的形状为
         # (批量大小, 4 * 隐藏单元个数)。
         encoding = nd.concat(outputs[0], outputs[-1])
-        print(encoding.shape)
+        #print(encoding.shape)
         outs = self.decoder(encoding)
-        print(outs.shape)
+        #print(outs.shape)
         return outs
