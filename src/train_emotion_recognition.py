@@ -13,10 +13,11 @@ import d2l
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
 pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
-##db_url = 'c://data//all.db'
-db_url = '//home//jim//shanghai_index//data//all.db'
+db_url = 'c://data//all.db'
+##db_url = '//home//jim//shanghai_index//data//all.db'
 ##train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
-train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
+##train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
+train_data_url = 'd://github_project//shanghai_index//src//train_set.csv'
 
 # 提取中文向量数据矩阵: 所有关键词提取300d向量到内存变量暂存
 def load_vec_to_memory():
@@ -113,7 +114,7 @@ def read_text_data(url):
 
 # 截断或补全处理一句话
 def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
-    max_l = 200  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
+    max_l = 100  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
     def pad(x):
         return x[:max_l] if len(x) > max_l else x + [u'空格'] * (max_l - len(x))
 
@@ -155,7 +156,7 @@ class short_time_dataset(gdata.Dataset):
 
 # 载入模型
 def define_model():
-    model = BiRNN(vocab = 200, embed_size = 300, num_hiddens = 200, num_layers = 2)
+    model = BiRNN(vocab = 100, embed_size = 300, num_hiddens = 200, num_layers = 2)
     lr, num_epochs = 0.01, 5
     model.initialize(init.Xavier(), ctx=cpu())
     trainer = gluon.Trainer(model.collect_params(), 'adam', {'learning_rate':lr})

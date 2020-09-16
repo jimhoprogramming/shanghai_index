@@ -228,17 +228,17 @@ class bugger_thread(threading.Thread):
 if __name__=='__main__':
     
     urls_list = get_urls()
-    n = 0
-    for url in urls_list:
-        print(urls_list)
-        x = get_value(one_url = url)
-        if n == 0:
-            mode = 'create'
-        else:
-            mode = 'append'
-        write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)
-        n += 1
-    '''
-    a = get_tushare_txt(date = '2020-06-30', file_name = './store_text.csv', mode = 'append')
-    print(a)
-    '''
+##    n = 1
+##    for url in urls_list:
+##        print(urls_list)
+##        x = get_value(one_url = url)
+##        if n == 0:
+##            mode = 'create'
+##        else:
+##            mode = 'append'
+##        write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)
+##        n += 1
+    
+    a = get_tushare_txt(date = '2020-09-15', file_name = './store_text.csv', mode = 'append')
+
+
