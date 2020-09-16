@@ -8,7 +8,7 @@ import pandas as pd
 from mxnet import nd, gluon, init, cpu
 from mxnet.gluon import data as gdata, loss as gloss 
 import re
-#import d2l
+import d2l
 
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
