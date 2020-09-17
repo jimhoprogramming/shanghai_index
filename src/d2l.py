@@ -541,9 +541,14 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
             Xs, ys, batch_size = _get_batch(batch, ctx)   
             with autograd.record():
                 y_hats = [net(X) for X in Xs]
+##                print('y_hat = {}'.format(y_hats))
+##                print('ys = {}'.format(ys))
+##                ls = loss(y_hats[0], ys[0]).mean()
                 ls = [loss(y_hat, y) for y_hat, y in zip(y_hats, ys)]
+##                print(ls)
             for l in ls:
                 l.backward()
+##                ls.backward()
             trainer.step(batch_size)
             train_l_sum += sum([l.sum().asscalar() for l in ls])
             n += sum([l.size for l in ls])

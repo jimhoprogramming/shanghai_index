@@ -13,11 +13,12 @@ import d2l
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
 pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
-db_url = 'c://data//all.db'
-##db_url = '//home//jim//shanghai_index//data//all.db'
+##db_url = 'c://data//all.db'
+db_url = '//home//jim//shanghai_index//data//all.db'
 ##train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
 ##train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
-train_data_url = 'd://github_project//shanghai_index//src//train_set.csv'
+##train_data_url = 'd://github_project//shanghai_index//src//train_set.csv'
+train_data_url = '//home//jim//shanghai_index//src//train_set.csv'
 
 # 提取中文向量数据矩阵: 所有关键词提取300d向量到内存变量暂存
 def load_vec_to_memory():
@@ -104,7 +105,8 @@ def sentence_to_word_list(sentence):
 
 # 读取数据文件，返回文本数据x，y
 def read_text_data(url):
-    data = pd.read_csv(url, encoding = 'utf-8')
+    data = pd.read_csv(url, encoding = 'utf-8', index_col = 0)
+    data.reindex([i for i in range(data.shape[0])], fill_value = '4')
     #x = x['text'].tolist()
     x = data['review'].tolist()
     #y = np.random.random_integers(0,1,len(x))
@@ -136,20 +138,22 @@ def create_iter():
 class short_time_dataset(gdata.Dataset):
     def __init__(self, url):
         super(short_time_dataset, self).__init__()
-        self.data = pd.read_csv(url, encoding = 'utf-8')        
+        self.data = pd.read_csv(url, encoding = 'utf-8',index_col = 0)
+        self.data = self.data.reindex([i for i in range(self.data.shape[0])], fill_value = '4')
     def __len__(self):
-        #print(self.data.shape[0])
+        print('data numbers = {}'.format(self.data.shape[0]))
         return self.data.shape[0]
     def __getitem__(self, idx):
-        #print(idx)
-        x = self.data.iloc[idx,1]
-        y = self.data.iloc[idx,0]
+        #print('idx = {}'.format(idx))
+        x = self.data['review'][idx]
+        y = self.data['label'][idx]
         #print(x)
         #print(y)
         x, y = preprocess_imdb(x, y)
         #print(x.shape)
         #print(y.shape)
-        #y = nd.one_hot(y,4)
+        #print(y)
+        #y = nd.one_hot(y,5)
         #y = nd.squeeze(y)
         return x, y
         
@@ -157,10 +161,10 @@ class short_time_dataset(gdata.Dataset):
 # 载入模型
 def define_model():
     model = BiRNN(vocab = 100, embed_size = 300, num_hiddens = 200, num_layers = 2)
-    lr, num_epochs = 0.01, 5
+    lr, num_epochs = 0.01, 32
     model.initialize(init.Xavier(), ctx=cpu())
     trainer = gluon.Trainer(model.collect_params(), 'adam', {'learning_rate':lr})
-    loss = gloss.SoftmaxCrossEntropyLoss()
+    loss = gloss.SoftmaxCrossEntropyLoss(sparse_label = True)
     return model, trainer, loss
 
 # 初始化参数
@@ -191,7 +195,7 @@ if __name__ == '__main__':
 ##    v_list = one_word_to_vector(words = words)
 ##    for v in v_list:
 ##        print(v.shape)
-##       
+       
 
     # test fill sentances to 500 word
 ##    x, y = read_text_data(url = './store_text.csv')
@@ -209,4 +213,4 @@ if __name__ == '__main__':
     # test model
     iteror = create_iter()
     model, trainer, loss = define_model()
-    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 5, ctx = cpu())
+    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 32, ctx = cpu())

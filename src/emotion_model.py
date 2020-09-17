@@ -10,7 +10,7 @@ class BiRNN(nn.Block):
         #self.embedding = nn.Embedding(len(vocab), embed_size)
         # bidirectional设为True即得到双向循环神经网络
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers, bidirectional=True, input_size=embed_size)
-        self.decoder = nn.Dense(4)
+        self.decoder = nn.Dense(5, activation = 'relu')
 
     def forward(self, inputs):
         # inputs的形状是(批量大小, 词数)，因为LSTM需要将序列作为第一维，所以将输入转置后
