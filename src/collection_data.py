@@ -14,7 +14,7 @@ def read_url_aimname():
     if os.path.exists(os.path.join(os.getcwd(),config_file_url)):
         config = configparser.ConfigParser()
         config.read(config_file_url)
-        data = config.get('Data_Feature','feature1')
+        data = config.get('Data_Feature','feature2')
         key_name, url, index = eval(data)
     return key_name, url, index
 

@@ -35,7 +35,7 @@ def create_y(only_today = True):
     sub_data_by_date_group = source_data.groupby('date')
     #print(sub_data_by_date_group.size())
     for name, group in sub_data_by_date_group:
-        # 是否只如当天的记录
+        # 是否只入当天的记录
         today = datetime.date.strftime(datetime.date.today(),'%Y-%m-%d')
         if only_today:
             for i in np.arange(group.shape[0]):
