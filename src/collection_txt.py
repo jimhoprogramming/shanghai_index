@@ -239,6 +239,6 @@ if __name__=='__main__':
         write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)
         n += 1
     
-    a = get_tushare_txt(date = '2020-10-15', file_name = './store_text.csv', mode = 'append')
+    a = get_tushare_txt(date = '2020-10-26', file_name = './store_text.csv', mode = 'append')
 
 
