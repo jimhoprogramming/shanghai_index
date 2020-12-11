@@ -15,10 +15,10 @@ import threading
 # 读取config.cfg文件得到动态的网址list
 def get_urls():
     rel = []
-    config_file_url = 'Config.cfg'
-    if os.path.exists(os.path.join(os.getcwd(), config_file_url)):
+    config_file_url = './Config.cfg'
+    if os.path.exists(config_file_url):
         config = configparser.ConfigParser()
-        config.read(config_file_url)
+        config.read(config_file_url, encoding = 'utf-8')
         # 加入循环读取文本setion内部的option
         for option in config.options('Text_Feature'):
             data = config.get('Text_Feature', option)
@@ -77,9 +77,9 @@ def take_useful_message(html_origin, condition, mode = 0):
     soup = BeautifulSoup(html_origin, 'html.parser')
     body = soup.body
     #print(body)
-    print(condition[0])
-    print(condition[1])
-    print(condition[2])
+    #print(condition[0])
+    #print(condition[1])
+    #print(condition[2])
     # 文本中含日期的，按条件常规查
     mode = condition[2]
     if mode == 0:
@@ -138,7 +138,7 @@ def take_useful_message(html_origin, condition, mode = 0):
                 temp_data.append(rel)
             data = temp_data
             #print(data)
-    print(u'data len are : {}'.format(len(data)))
+    #print(u'data len are : {}'.format(len(data)))
     return data
 
 # 按日期，内容入成文件
@@ -207,7 +207,7 @@ def get_tushare_txt(date, file_name = '', mode = 'append'):
     
 def netbugger(url, mode = 'append'):
     x = get_value(one_url = url)
-    return write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)    
+    return write_to_file(data_list = x , file_name = '../data/store_text.csv', mode = mode)    
     
 
 class bugger_thread(threading.Thread):
@@ -225,20 +225,21 @@ class bugger_thread(threading.Thread):
             return None
 
 
-if __name__=='__main__':
+def run(data_date):
     
     urls_list = get_urls()
     n = 1
     for url in urls_list:
-        print(urls_list)
+        print(url)
         x = get_value(one_url = url)
         if n == 0:
             mode = 'create'
         else:
             mode = 'append'
-        write_to_file(data_list = x , file_name = './store_text.csv', mode = mode)
+        m = write_to_file(data_list = x , file_name = '../data/store_text.csv', mode = mode)
+        print(u'加入数据{}条'.format(m))
         n += 1
-    
-    a = get_tushare_txt(date = '2020-10-26', file_name = './store_text.csv', mode = 'append')
+    #    
+    a = get_tushare_txt(date = data_date, file_name = '../data/store_text.csv', mode = 'append')
 
 
