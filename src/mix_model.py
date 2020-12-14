@@ -3,14 +3,12 @@ from mxnet.gluon import nn, rnn
 
 
 
-class BiRNN(nn.Block):
+class mix_net(nn.Block):
     def __init__(self, vocab, embed_size, num_hiddens, num_layers, **kwargs):
         super(BiRNN, self).__init__(**kwargs)
-        # 词向量已经得到无需再转换
-        #self.embedding = nn.Embedding(len(vocab), embed_size)
-        # bidirectional设为True即得到双向循环神经网络
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers, bidirectional=True, input_size=embed_size)
         self.decoder = nn.Dense(1, activation = 'tanh')
+        self.dnn = 
 
     def forward(self, inputs):
         # inputs的形状是(批量大小, 词数)，因为LSTM需要将序列作为第一维，所以将输入转置后
