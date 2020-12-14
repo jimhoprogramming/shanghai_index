@@ -161,7 +161,7 @@ class short_time_dataset(gdata.Dataset):
 # 载入模型
 def define_model():
     model = BiRNN(vocab = 100, embed_size = 300, num_hiddens = 200, num_layers = 2)
-    lr, num_epochs = 0.01, 32
+    lr, num_epochs = 0.001, 125
     model.initialize(init.Xavier(), ctx=cpu())
     trainer = gluon.Trainer(model.collect_params(), 'adam', {'learning_rate':lr})
     loss = gloss.SoftmaxCrossEntropyLoss(sparse_label = True)
@@ -213,4 +213,4 @@ if __name__ == '__main__':
     # test model
     iteror = create_iter()
     model, trainer, loss = define_model()
-    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 32, ctx = cpu())
+    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 1000, ctx = cpu())
