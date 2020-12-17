@@ -14,15 +14,15 @@ import tushare as ts
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
 pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
-db_url = 'c://data//all.db'
-##db_url = '//home//jim//shanghai_index//data//all.db'
+##db_url = 'c://data//all.db'
+db_url = '//home//jim//shanghai_index//data//all.db'
 ##train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
 ##train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
 ##train_data_url = 'd://github_project//shanghai_index//src//train_set.csv'
-##train_data_url_txt = '//home//jim//shanghai_index//data//store_text.csv'
-##train_data_url_dig = '//home//jim//shanghai_index//data//store_digital.csv'
-train_data_url_txt = 'd://github_project//shanghai_index//data//store_text.csv'
-train_data_url_dig = 'd://github_project//shanghai_index//data//store_digital.csv'
+train_data_url_txt = '//home//jim//shanghai_index//data//store_text.csv'
+train_data_url_dig = '//home//jim//shanghai_index//data//store_digital.csv'
+##train_data_url_txt = 'd://github_project//shanghai_index//data//store_text.csv'
+##train_data_url_dig = 'd://github_project//shanghai_index//data//store_digital.csv'
 
 
 
@@ -141,7 +141,7 @@ def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
     '''
     # 截断或补全处理一句话
     '''
-    max_l = 1000  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
+    max_l = 4000  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
     def pad(x):
         return x[:max_l] if len(x) > max_l else x + [u'空格'] * (max_l - len(x))
 
@@ -188,20 +188,21 @@ class short_time_dataset(gdata.Dataset):
         #print('idx = {}'.format(idx))
         index_value = self.date_list[idx]
         x_text = self.data_text_dict[index_value]
+        print(u'text lenght : {}'.format(len(x_text)))
         x_digital_series = self.data_digital.loc[index_value]
         x_digital = x_digital_series.tolist()
-        x_digital = nd.array(x_digital)
+        x_digital = nd.array(x_digital[:-1])
         y = x_digital_series['y_value']
-        print(x_text)
-        print(x_digital)
-        print(y)
+        #print(x_text)
+        #print(x_digital)
+        #print(y)
         x_text, y = preprocess_imdb(x_text, y)
-        #print(x.shape)
+        print(x_text.shape)
         #print(y.shape)
         #print(y)
         #y = nd.one_hot(y,5)
         #y = nd.squeeze(y)
-        return [x_text, x_digital], y
+        return x_text, x_digital, y
 
     def __open_file(self, url):
         '''
@@ -301,10 +302,9 @@ if __name__ == '__main__':
 
     # test iter
     iteror = create_iter()
-    for x,y in iteror:
-        print('X', x.shape, 'y', y.shape)
-        break
-    '#batches:', len(iteror)
+    for x_text, x_digital, y in iteror:
+        print('X_text = {}, X_digital = {}, y = {}'.format(x_text.shape, x_digital.shape, y.shape))
+        #break
 
     # test model
 ##    iteror = create_iter()
