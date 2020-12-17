@@ -8,20 +8,21 @@ import pandas as pd
 from mxnet import nd, gluon, init, cpu
 from mxnet.gluon import data as gdata, loss as gloss 
 import re
-import d2l
+#import d2l
 import tushare as ts
 
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
 pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
-##db_url = 'c://data//all.db'
-db_url = '//home//jim//shanghai_index//data//all.db'
+db_url = 'c://data//all.db'
+##db_url = '//home//jim//shanghai_index//data//all.db'
 ##train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
 ##train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
 ##train_data_url = 'd://github_project//shanghai_index//src//train_set.csv'
-train_data_url_txt = '//home//jim//shanghai_index//data//store_text.csv'
-train_data_url_dig = '//home//jim//shanghai_index//data//store_digital.csv'
-
+##train_data_url_txt = '//home//jim//shanghai_index//data//store_text.csv'
+##train_data_url_dig = '//home//jim//shanghai_index//data//store_digital.csv'
+train_data_url_txt = 'd://github_project//shanghai_index//data//store_text.csv'
+train_data_url_dig = 'd://github_project//shanghai_index//data//store_digital.csv'
 
 
 
@@ -140,7 +141,7 @@ def preprocess_imdb(x, y):  # 本函数已保存在d2lzh包中方便以后使用
     '''
     # 截断或补全处理一句话
     '''
-    max_l = 100  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
+    max_l = 1000  # 将每条评论通过截断或者补'<pad>'，使得长度变成500
     def pad(x):
         return x[:max_l] if len(x) > max_l else x + [u'空格'] * (max_l - len(x))
 
@@ -178,61 +179,66 @@ class short_time_dataset(gdata.Dataset):
     '''
     def __init__(self, url):
         super(short_time_dataset, self).__init__()
-        self.data = self.__open_file(url = url)
-        self.data = self.data.reindex([i for i in range(self.data.shape[0])], fill_value = '4')
+        self.date_list, self.data_text_dict, self.data_digital = self.__open_file(url = url)
     def __len__(self):
-        print('data numbers = {}'.format(self.data.shape[0]))
-        return self.data.shape[0]
+        m = len(self.date_list)
+        print('data numbers = {}'.format(m))
+        return m
     def __getitem__(self, idx):
         #print('idx = {}'.format(idx))
-        x = self.data['review'][idx]
-        y = self.data['label'][idx]
-        #print(x)
-        #print(y)
-        x, y = preprocess_imdb(x, y)
+        index_value = self.date_list[idx]
+        x_text = self.data_text_dict[index_value]
+        x_digital_series = self.data_digital.loc[index_value]
+        x_digital = x_digital_series.tolist()
+        x_digital = nd.array(x_digital)
+        y = x_digital_series['y_value']
+        print(x_text)
+        print(x_digital)
+        print(y)
+        x_text, y = preprocess_imdb(x_text, y)
         #print(x.shape)
         #print(y.shape)
         #print(y)
         #y = nd.one_hot(y,5)
         #y = nd.squeeze(y)
-        return x, y
+        return [x_text, x_digital], y
 
-def open_file(url):
-    '''
-        提取文件；按日期合并text的行；按日期计算下一天的y；
-    '''
-    try :
-        data_text = pd.read_csv(url[0], encoding = 'utf-8',index_col = 0)
-    except:
-        try:
-            data_text = pd.read_csv(url[0], encoding = 'gbk',index_col = 0)
+    def __open_file(self, url):
+        '''
+            提取文件；按日期合并text的行；按日期计算下一天的y；
+        '''
+        try :
+            data_text = pd.read_csv(url[0], encoding = 'utf-8', index_col = 0)
         except:
-            data_text = pd.read_csv(url[0], encoding = 'gb2312',index_col = 0)
-    data_digital = pd.read_csv(url[1], encoding = 'utf-8',index_col = 0)
-    
-    print(data_text.shape)
-    data_text.drop_duplicates(['text'], inplace = True)
-    print(data_text.shape)
-    grouped = data_text.groupby(['date'])
-    data_text_dict = {}
-    for name, group in grouped:
-        temp_data = ';'.join(group['text'].tolist())
-        data_text_dict[name] = temp_data
-    # 按日期先后排序好数据计算所有需要的y值
-    data_digital = data_digital.set_index(['str_date'])
-    data_digital = data_digital.sort_index(ascending = True)
-    y_next = (data_digital['index_low'] - data_digital['index_before']) / data_digital['index_before']
-    y_next = y_next.tolist()[1:]
-    y_next.append(0)
-    #print(y_next)
-    data_digital['y_value'] = y_next
-    #print(data_digital)
-    # 生成有效日期列表，清除周六日数据或非交易日数据行
-    date_list = []
-    for date in data_digital.index:
-        if CheckTradeDateTrue(date):
-            date_list.append(date)
-    return date_list, data_text_dict, data_digital
+            try:
+                data_text = pd.read_csv(url[0], encoding = 'gbk',index_col = 0)
+            except:
+                data_text = pd.read_csv(url[0], encoding = 'gb2312',index_col = 0)
+        data_digital = pd.read_csv(url[1],index_col = 0)
+        
+        print(data_text.shape)
+        data_text.drop_duplicates(['text'], inplace = True)
+        print(data_text.shape)
+        grouped = data_text.groupby(['date'])
+        data_text_dict = {}
+        for name, group in grouped:
+            temp_data = ';'.join(group['text'].tolist())
+            data_text_dict[name] = temp_data
+        # 按日期先后排序好数据计算所有需要的y值
+        data_digital = data_digital.set_index(['str_date'])
+        data_digital = data_digital.sort_index(ascending = True)
+        y_next = (data_digital['index_low'] - data_digital['index_before']) / data_digital['index_before']
+        y_next = y_next.tolist()[1:]
+        y_next.append(0)
+        #print(y_next)
+        data_digital['y_value'] = y_next
+        #print(data_digital)
+        # 生成有效日期列表，清除周六日数据或非交易日数据行
+        date_list = []
+        for date in data_digital.index:
+            if CheckTradeDateTrue(date):
+                date_list.append(date)
+        return date_list, data_text_dict, data_digital
 
 def CheckTradeDateTrue(InputDate=None):
     '''
@@ -262,13 +268,10 @@ def create_iter():
         建立迭代器
         为缓解速度问题打散数据在先，提取词向量在后
     '''
-    batch_size = 32
+    batch_size = 2
     s_t_d_obj = short_time_dataset([train_data_url_txt, train_data_url_dig])
     train_iter = gdata.DataLoader(s_t_d_obj, batch_size, shuffle = True)
     return train_iter
-
-
-
 
 
 
@@ -297,11 +300,11 @@ if __name__ == '__main__':
 ##    print(u'regured x shape :{}.y shape:{}'.format(a.shape,b.shape))
 
     # test iter
-##    iteror = create_iter()
-##    for x,y in iteror:
-##        print('X', x.shape, 'y', y.shape)
-##        break
-##    '#batches:', len(iteror)
+    iteror = create_iter()
+    for x,y in iteror:
+        print('X', x.shape, 'y', y.shape)
+        break
+    '#batches:', len(iteror)
 
     # test model
 ##    iteror = create_iter()
@@ -309,5 +312,5 @@ if __name__ == '__main__':
 ##    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 1000, ctx = cpu())
 
     # test open_file
-    date_list, date_t, data_d = open_file([train_data_url_txt, train_data_url_dig])
-    print(date_list)
+##    date_list, date_t, data_d = open_file([train_data_url_txt, train_data_url_dig])
+##    print(date_list)

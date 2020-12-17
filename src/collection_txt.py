@@ -161,6 +161,7 @@ def write_to_file(data_list, file_name, mode = 'create'):
     #print('date : {}'.format(date_list))
     rel = make_pandas(date_list, text_list, mode = mode, file_name = file_name)
     #print(rel)
+    rel.drop_duplicates(['text'], inplace = True)
     rel.to_csv(file_name, encoding = 'utf-8')
     return len(data_list)
 
