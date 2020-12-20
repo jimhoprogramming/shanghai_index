@@ -193,6 +193,7 @@ class short_time_dataset(gdata.Dataset):
         x_digital = x_digital_series.tolist()
         x_digital = nd.array(x_digital[:-1])
         y = x_digital_series['y_value']
+        y = y <= -0.01
         #print(x_text)
         #print(x_digital)
         #print(y)
