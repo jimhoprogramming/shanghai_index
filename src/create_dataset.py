@@ -193,7 +193,7 @@ class short_time_dataset(gdata.Dataset):
         x_digital = x_digital_series.tolist()
         x_digital = nd.array(x_digital[:-1])
         y = x_digital_series['y_value']
-        y = y <= -0.01
+        #y = y <= -0.01
         #print(x_text)
         #print(x_digital)
         #print(y)
@@ -265,12 +265,12 @@ def CheckTradeDateTrue(InputDate=None):
     return Rel
     
 
-def create_iter():
+def create_iter(batch_size = 2):
     '''
         建立迭代器
         为缓解速度问题打散数据在先，提取词向量在后
     '''
-    batch_size = 2
+    
     s_t_d_obj = short_time_dataset([train_data_url_txt, train_data_url_dig])
     train_iter = gdata.DataLoader(s_t_d_obj, batch_size, shuffle = True)
     return train_iter

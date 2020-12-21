@@ -23,7 +23,7 @@ def define_model():
     model.initialize(init.Xavier(), ctx=cpu())
     trainer = gluon.Trainer(model.collect_params(), 'adam', {'learning_rate':lr})
 ##    loss = gloss.SoftmaxCrossEntropyLoss(sparse_label = True)
-    loss = gloss.SigmoidBinaryCrossEntropyLoss()
+    loss = gloss.L2Loss()
     return model, trainer, loss
 
 # 初始化参数
@@ -47,17 +47,20 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
             batch_size = x1.shape[0]
             with autograd.record():
                 y_hats = net(x1, x2)
-                print('y_hat = {}'.format(y_hats))
-                print('y = {}'.format(y))
+                #print('y_hat = {}'.format(y_hats))
+                #print('y = {}'.format(y))
                 ls = loss(y_hats, y)
-                print(ls)
+                #print(ls)
                 ls.backward()
             trainer.step(batch_size)
             train_loss += np.mean(ls.asnumpy())
             train_acc += acc(y_hats, y)
             train_step += 1
         
-        print('epoch {}, loss {}, train acc {}, time {} sec'.format(epoch + 1, train_loss, train_acc, time.time() - start))
+        print('epoch {}, loss {}, train acc {}, time {} sec'.format(epoch + 1,
+                                                                    train_loss/train_step,
+                                                                    train_acc/train_step,
+                                                                    time.time() - start))
 
 def acc(output, label):
     # output: (batch, num_output) float32 ndarray
@@ -66,7 +69,12 @@ def acc(output, label):
 
 if __name__ == '__main__':
     # test model
-    iteror = create_iter()
+    iteror = create_iter(batch_size = 2)
     model, trainer, loss = define_model()
     print(model)
-    run_train(model = model, data = iteror, trainer = trainer, loss = loss, num_epochs = 5, ctx = cpu())
+    run_train(model = model,
+              data = iteror,
+              trainer = trainer,
+              loss = loss,
+              num_epochs = 32,
+              ctx = cpu())
