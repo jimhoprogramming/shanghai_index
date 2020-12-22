@@ -47,8 +47,8 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
             batch_size = x1.shape[0]
             with autograd.record():
                 y_hats = net(x1, x2)
-                #print('y_hat = {}'.format(y_hats))
-                #print('y = {}'.format(y))
+                print('y_hat = {}'.format(y_hats))
+                print('y = {}'.format(y))
                 ls = loss(y_hats, y)
                 #print(ls)
                 ls.backward()
