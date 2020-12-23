@@ -19,7 +19,7 @@ def define_model():
                     num_hiddens = 200,
                     num_layers = 2,
                     dense_layers = 100)
-    lr, num_epochs = 0.01, 2
+    lr = 0.001
     model.initialize(init.Xavier(), ctx=cpu())
     trainer = gluon.Trainer(model.collect_params(), 'adam', {'learning_rate':lr})
 ##    loss = gloss.SoftmaxCrossEntropyLoss(sparse_label = True)
@@ -69,7 +69,7 @@ def acc(output, label):
 
 if __name__ == '__main__':
     # test model
-    iteror = create_iter(batch_size = 2)
+    iteror = create_iter(batch_size = 1)
     model, trainer, loss = define_model()
     print(model)
     run_train(model = model,
