@@ -28,7 +28,7 @@ def define_model():
     optimizer_params={'learning_rate': lr, 'lr_scheduler': lr_sch}
     model.initialize(init.Xavier())
 ##    trainer = gluon.Trainer(params = model.collect_params(), optimizer = 'sgd', optimizer_params = {'learning_rate':lr})
-    trainer = gluon.Trainer(params = model.collect_params(), optimizer = 'sgd', optimizer_params = optimizer_params)
+    trainer = gluon.Trainer(params = model.collect_params(), optimizer = 'adam', optimizer_params = optimizer_params)
     loss = gloss.SoftmaxCrossEntropyLoss(sparse_label = True)
 ##    loss = gloss.L2Loss()
 ##    loss = gloss.SigmoidBinaryCrossEntropyLoss()
@@ -95,7 +95,8 @@ def train(train_iter, test_iter, net, loss, trainer, ctx, num_epochs):
 def acc(output, label):
     # output: (batch, num_output) float32 ndarray
     # label: (batch, label) float32 ndarray
-    return (nd.argmax(output) == label).mean().asscalar()  
+    return (nd.argmax(output) == label).mean().asscalar()
+
 
 if __name__ == '__main__':
     # test model
@@ -106,5 +107,5 @@ if __name__ == '__main__':
               data = iteror,
               trainer = trainer,
               loss = loss,
-              num_epochs = 300,
+              num_epochs = 100,
               ctx = cpu())

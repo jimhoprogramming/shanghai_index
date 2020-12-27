@@ -266,6 +266,18 @@ class short_time_dataset(gdata.Dataset):
         
         return date_list, data_text_dict, data_digital
 
+    def get_one_x_by_date(self, date):
+        x_text = self.data_text_dict[date]
+        print(u'text lenght : {}'.format(len(x_text)))
+        x_digital_series = self.data_digital.loc[date]
+        x_digital = x_digital_series.tolist()
+        x_digital = nd.array(x_digital[:-1])
+        y = x_digital_series['y_value']
+        x_text, y = preprocess_imdb(x_text, y)
+        return x_text, x_digital, y 
+        
+        
+
 def CheckTradeDateTrue(InputDate=None):
     '''
         功能：检查输入的日期是否交易日，
@@ -287,6 +299,9 @@ def CheckTradeDateTrue(InputDate=None):
     else:
         print(u'不是交易日')
     return Rel
+
+
+    
     
 
 def create_iter(batch_size = 2):
@@ -296,7 +311,7 @@ def create_iter(batch_size = 2):
     '''
     
     s_t_d_obj = short_time_dataset([train_data_url_txt, train_data_url_dig])
-    train_iter = gdata.DataLoader(s_t_d_obj, batch_size, shuffle = True)
+    train_iter = gdata.DataLoader(s_t_d_obj, batch_size, shuffle = True, last_batch = 'rollover')
     return train_iter
 
 
