@@ -193,17 +193,40 @@ class short_time_dataset(gdata.Dataset):
         x_digital = x_digital_series.tolist()
         x_digital = nd.array(x_digital[:-1])
         y = x_digital_series['y_value']
-        #y = y <= -0.01
+        #x_digital = nd.random.uniform(shape=(21,))
+        #y = nd.random.uniform(0,1).asscalar()
+        #y = np.random.choice([0,1,2,3,4,5,6,7,8,9],1)[0]
+        y = self.__split_y_segment(y)
         #print(x_text)
         #print(x_digital)
         #print(y)
         x_text, y = preprocess_imdb(x_text, y)
-        print(x_text.shape)
+        #print(x_text.shape)
         #print(y.shape)
         #print(y)
-        #y = nd.one_hot(y,5)
+        #y = nd.one_hot(y, 10)
         #y = nd.squeeze(y)
         return x_text, x_digital, y
+    
+    def __split_y_segment(self, y):
+        '''
+            把y值变成分类问题
+        '''
+        #print(y)
+        rel = 0
+        if (y > 0):
+            rel = 0
+        elif (0 > y >= -0.001):
+            rel = 1
+        elif (-0.001 > y >= -0.005):
+            rel = 2
+        elif (-0.005 > y > -0.01):
+            rel = 3
+        elif (-.01 >= y ):
+            rel = 4
+        #print(rel)
+        return int(rel)
+
 
     def __open_file(self, url):
         '''
@@ -240,6 +263,7 @@ class short_time_dataset(gdata.Dataset):
         for date in data_digital.index:
             if CheckTradeDateTrue(date):
                 date_list.append(date)
+        
         return date_list, data_text_dict, data_digital
 
 def CheckTradeDateTrue(InputDate=None):
