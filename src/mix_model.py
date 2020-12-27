@@ -8,11 +8,20 @@ class mix_net(nn.Block):
         super(mix_net, self).__init__(**kwargs)
         self.encoder = rnn.LSTM(num_hiddens, num_layers=num_layers, bidirectional=True, input_size=embed_size)
         self.decoder = nn.Dense(1, activation = 'relu')
-        self.bn = nn.BatchNorm(axis = 1, use_global_stats = False)
-        self.dnn = nn.Sequential()
-        for i in nd.arange(dense_layers):
-            self.dnn.add(nn.Dense(30, activation = 'relu'))
-        self.out_dense = nn.Dense(1)
+        #self.bn = nn.BatchNorm(axis = 0, use_global_stats = True)
+        self.bn = nn.LayerNorm(axis = 0)
+        self.dnn = nn.HybridSequential()
+        for i in nd.arange(int(dense_layers * 1/5)):
+            self.dnn.add(nn.Dense(int(22 * 2), activation = 'relu'))
+        for i in nd.arange(int(dense_layers * 1/5)):
+            self.dnn.add(nn.Dense(int(22 * 4), activation = 'relu'))
+        for i in nd.arange(int(dense_layers * 1/5)):
+            self.dnn.add(nn.Dense(int(22 * 8), activation = 'relu'))
+        for i in nd.arange(int(dense_layers * 1/5)):
+            self.dnn.add(nn.Dense(int(22 * 2), activation = 'relu'))
+        for i in nd.arange(int(dense_layers * 1/5)):
+            self.dnn.add(nn.Dense(int(22 * 1), activation = 'relu'))
+        self.out_dense = nn.Dense(5)
 
     def forward(self, inputs_text, inputs_digital):
         # inputs的形状是(批量大小, 词数)，因为LSTM需要将序列作为第一维，所以将输入转置后
@@ -30,8 +39,8 @@ class mix_net(nn.Block):
         #print(encoding.shape)
         outs = self.decoder(encoding)
         #print(outs.shape)
-        concat_x = nd.concat(inputs_digital, outs, dim = 1)
-        x = self.bn(concat_x)
+        x = nd.concat(inputs_digital, outs, dim = 1)
+        x = self.bn(x)
         #print(x)
         x = self.dnn(x)
         y = self.out_dense(x)
