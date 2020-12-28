@@ -20,18 +20,17 @@ def define_model():
 
 def predict(net, date):
     s_t_d_obj = create_dataset.short_time_dataset([create_dataset.train_data_url_txt, create_dataset.train_data_url_dig])
-    x1, x2, y = s_t_d_obj.get_one_x_by_date(date)
-    x1 = nd.expand_dims(x1, axis = 0)
-    x2 = nd.expand_dims(x2, axis = 0)
-    print(x1.shape)
-    print(x2.shape)
-    print(y)
+    x1, x2, y = s_t_d_obj.get_ndate_data(date, 4)
+    #print(x1.shape)
+    #print(x2.shape)
+    #print(y)
     with autograd.predict_mode():
-        autograd.set_training(False)
         y_hats = net(x1, x2)
     print(y_hats)
-
+    y_class = nd.argmax(y_hats, axis = 1)
+    print(y_class)
+    print(u'预测{}的次日上证指数最低位置将会{}'.format(date,s_t_d_obj.y_class_to_value(y_class[0].asscalar())))
 if __name__ == '__main__':
     net = define_model()
-    predict(net = net, date = '2020-12-26')
+    predict(net = net, date = '2020-12-27')
 

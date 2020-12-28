@@ -227,7 +227,14 @@ class short_time_dataset(gdata.Dataset):
         #print(rel)
         return int(rel)
 
-
+    def y_class_to_value(self, y):
+        '''
+            把y值变成分类问题
+        '''
+        #print(y)
+        rel = {'0':'大于0','1':'跌0.1%','2':'跌0.5%','3':'跌0.5-0.1%','4':'超1个点预警'}
+        return rel[str(int(y))]
+    
     def __open_file(self, url):
         '''
             提取文件；按日期合并text的行；按日期计算下一天的y；
@@ -266,7 +273,7 @@ class short_time_dataset(gdata.Dataset):
         
         return date_list, data_text_dict, data_digital
 
-    def get_one_x_by_date(self, date):
+    def __get_one_x_by_date(self, date):
         x_text = self.data_text_dict[date]
         print(u'text lenght : {}'.format(len(x_text)))
         x_digital_series = self.data_digital.loc[date]
@@ -274,9 +281,23 @@ class short_time_dataset(gdata.Dataset):
         x_digital = nd.array(x_digital[:-1])
         y = x_digital_series['y_value']
         x_text, y = preprocess_imdb(x_text, y)
-        return x_text, x_digital, y 
-        
-        
+        # 扩维
+        x_text = nd.expand_dims(x_text, axis = 0)
+        x_digital = nd.expand_dims(x_digital, axis = 0)
+        y = nd.expand_dims(y, axis = 0)
+        return x_text, x_digital, y
+    
+    def get_ndate_data(self, date, batch_size):
+        x_text_batch, x_digital_batch, y_batch = self.__get_one_x_by_date(date)        
+        for i in nd.arange(int(batch_size - 1)):
+            # 随机抽取其他日期的数据或指定
+            choice_date = np.random.choice(self.date_list,1)[0]
+            print(u'被随机选的日期是：{}'.format(choice_date))
+            temp_x_text, temp_x_digital, temp_y = self.__get_one_x_by_date(date)
+            x_text_batch = nd.concat(x_text_batch, temp_x_text, dim = 0)
+            x_digital_batch = nd.concat(x_digital_batch, temp_x_digital, dim = 0)
+            y_batch = nd.concat(y_batch, temp_y, dim = 0)
+        return x_text_batch, x_digital_batch, y_batch
 
 def CheckTradeDateTrue(InputDate=None):
     '''
