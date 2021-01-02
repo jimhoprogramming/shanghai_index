@@ -28,6 +28,7 @@ class UIFrame(wx.Frame):
         self.Centre()
         self.Show()
         self.timer.Start(1000 * 60 * 30)
+##        self.timer.Start(1000 * 60)
         
     def __OnTimer(self, event):
         # 设定24时制几时运行一次
@@ -35,6 +36,7 @@ class UIFrame(wx.Frame):
         print(u'时间到')
         print(u'可以运行吗：{}'.format(c))
         if c:
+##        if True:
             data_df = run()
              
         

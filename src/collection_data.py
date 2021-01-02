@@ -13,7 +13,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 # 读取config.cfg文件得到动态的网址和目标名称
 def read_url_aimname(Feature_class_name = 'Data_Feature'):
     rel = []
-    config_file_url = 'Config.cfg'
+    config_file_url = 'Config.txt'
     if os.path.exists(os.path.join(os.getcwd(),config_file_url)):
         config = configparser.ConfigParser()
         config.read(config_file_url, encoding = 'utf-8')
