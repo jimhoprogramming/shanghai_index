@@ -22,13 +22,14 @@ class UIFrame(wx.Frame):
         #定义一个计时器
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.__OnTimer, self.timer)
+        #绑定事件
+        self.Bind(wx.EVT_RIGHT_DOWN, self.__OnOneRun, self) 
         #更新尺寸
         self.SetAutoLayout(1)
         #显示界面
         self.Centre()
         self.Show()
         self.timer.Start(1000 * 60 * 30)
-##        self.timer.Start(1000 * 60)
         
     def __OnTimer(self, event):
         # 设定24时制几时运行一次
@@ -36,9 +37,11 @@ class UIFrame(wx.Frame):
         print(u'时间到')
         print(u'可以运行吗：{}'.format(c))
         if c:
-##        if True:
             data_df = run()
-             
+            
+    def __OnOneRun(self, event):
+        # 立即运行一次数据收集
+        data_df = run()
         
     def __check_timming(self, str_time):
         Now=time.localtime()

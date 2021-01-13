@@ -11,7 +11,8 @@ def define_model():
                     num_hiddens = 200,
                     num_layers = 2,
                     dense_layers = 10)
-    weight_url = '//home//jim//shanghai_index//data//weights.params'
+    #weight_url = '//home//jim//shanghai_index//data//weights.params'
+    weight_url = '..//data//weights.params'
     # 提取已有参数
     if os.path.exists(weight_url):
         print(u'已含有旧权重文件，正在载入继续训练并更新')
@@ -32,5 +33,5 @@ def predict(net, date):
     print(u'预测{}的次日上证指数最低位置将会{}'.format(date,s_t_d_obj.y_class_to_value(y_class[0].asscalar())))
 if __name__ == '__main__':
     net = define_model()
-    predict(net = net, date = '2020-12-31')
+    predict(net = net, date = '2021-01-10')
 

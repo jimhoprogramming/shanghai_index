@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 import tushare as ts
 import pandas as pd
+import os
+import datetime
+import matplotlib.pyplot as plt
+plt.rcParams['font.sans-serif']=['SimHei']
+plt.rcParams['axes.unicode_minus']= False
 
+url = '../data/class_data.csv'
 def define_class():
     # 定义分类代表的个股
     class_dict_stock_list = {u'白酒':['000799','600519','000858','600197','600962'],
@@ -43,20 +49,62 @@ def get_percend(stocks_df):
     rel = pd.DataFrame(rel)
     return rel
     
+# 保存本次结果并给予一个日期,同日期的被替代
+def save_to_file(series_mean):
+    date_dt_obj =  datetime.date.today()
+    str_date = datetime.date.strftime(date_dt_obj, '%Y-%m-%d')
+    # 读旧记录
+    if os.path.exists(url):
+        df = pd.read_csv(url, encoding = 'utf-8', index_col = 0)
+        # 检查日期有则替换，无则增加
+        if str_date in df.columns:
+            print(u'有今天记录，替换今天')
+        else:
+            print(u'增加今天')
+        df[str_date] = series_mean    
+    else:
+        df = pd.DataFrame(series_mean, columns = [str_date])
+    # 保存并替代原文件
+    df.to_csv(url, encoding = 'utf-8')
+    return True
 
-
-if __name__=='__main__':
+# 显示走势图
+def plot_class_by_date():
+    # 读旧记录
+    if os.path.exists(url):
+        df = pd.read_csv(url, encoding = 'utf-8', index_col = 0)
+        print(df)
+        plt.close('all')
+        change_df = df.sub(df['2021-01-5'], axis = 0)
+        print(change_df)
+        change_df.T.plot()
+        plt.show()
+    else:
+        print(u'文件不存在无法显示！')
+    return True
+    
+def run_todate():
     c = define_class()
     d = get_stocks_k(c, '2020-6-30')
     rel = get_percend(d)
-    print(rel)
-    print(rel.mean(0))
+    series_mean = rel.mean(0)
+    save_to_file(series_mean)
+    print(series_mean)    
+    return True
+
+
+
+    
+if __name__=='__main__':
+    run_todate()
+    plot_class_by_date()    
+
+    
 
 
 
 
 
-# 输出结果DF
 
 
 

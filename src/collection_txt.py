@@ -15,7 +15,7 @@ import threading
 # 读取config.cfg文件得到动态的网址list
 def get_urls():
     rel = []
-    config_file_url = './Config.txt'
+    config_file_url = './Config.cfg'
     if os.path.exists(config_file_url):
         config = configparser.ConfigParser()
         config.read(config_file_url, encoding = 'utf-8')

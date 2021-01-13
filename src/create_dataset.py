@@ -14,15 +14,15 @@ import tushare as ts
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
 pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
-##db_url = 'c://data//all.db'
-db_url = '//home//jim//shanghai_index//data//all.db'
-##train_data_url = 'd://github_project//shanghai_index//data//simplifyweibo_4_moods.csv'
+db_url = 'c://data//all.db'
+##db_url = '//home//jim//shanghai_index//data//all.db'
+train_data_url = '..//data//simplifyweibo_4_moods.csv'
 ##train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
 ##train_data_url = 'd://github_project//shanghai_index//src//train_set.csv'
-train_data_url_txt = '//home//jim//shanghai_index//data//store_text.csv'
-train_data_url_dig = '//home//jim//shanghai_index//data//store_digital.csv'
-##train_data_url_txt = 'd://github_project//shanghai_index//data//store_text.csv'
-##train_data_url_dig = 'd://github_project//shanghai_index//data//store_digital.csv'
+##train_data_url_txt = '//home//jim//shanghai_index//data//store_text.csv'
+##train_data_url_dig = '//home//jim//shanghai_index//data//store_digital.csv'
+train_data_url_txt = '..//data//store_text.csv'
+train_data_url_dig = '..//data//store_digital.csv'
 
 
 
