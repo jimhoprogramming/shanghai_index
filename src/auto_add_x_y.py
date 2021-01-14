@@ -7,6 +7,9 @@ import collection_txt as ct
 import collection_data as cd
 import collection_index as ci
 import wx
+import class_percend
+import predict
+import datetime
 
 
 # 常驻运行按时启动某一函数
@@ -24,6 +27,8 @@ class UIFrame(wx.Frame):
         self.Bind(wx.EVT_TIMER, self.__OnTimer, self.timer)
         #绑定事件
         self.Bind(wx.EVT_RIGHT_DOWN, self.__OnOneRun, self) 
+        self.Bind(wx.EVT_LEFT_DOWN, self.__OnClassPercend, self)
+        self.Bind(wx.EVT_MIDDLE_DCLICK, self.__OnPredict, self)
         #更新尺寸
         self.SetAutoLayout(1)
         #显示界面
@@ -53,7 +58,18 @@ class UIFrame(wx.Frame):
         else:
             return False
         
+    def __OnClassPercend(self, event):
+        # 运行按行业比较价格升跌百分比
+        class_percend.run_todate()
+        class_percend.plot_class_by_date()
 
+    def __OnPredict(self, event):
+        # 运行预测指数的最低跌幅
+        date_dt_obj =  datetime.date.today()
+        str_date = datetime.date.strftime(date_dt_obj, '%Y-%m-%d')
+        predict.net = define_model()
+        predict.predict(net = net, date = str_date)
+        
 def run():
     # 打开文本数据追加当天资讯类数据
     today = datetime.date.strftime(datetime.date.today(),'%Y-%m-%d')
