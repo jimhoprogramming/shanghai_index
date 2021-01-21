@@ -67,7 +67,7 @@ class UIFrame(wx.Frame):
         # 运行预测指数的最低跌幅
         date_dt_obj =  datetime.date.today()
         str_date = datetime.date.strftime(date_dt_obj, '%Y-%m-%d')
-        predict.net = define_model()
+        net = predict.define_model()
         predict.predict(net = net, date = str_date)
         
 def run():
