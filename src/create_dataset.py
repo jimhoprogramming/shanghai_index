@@ -14,7 +14,7 @@ import tushare as ts
 
 ##pre_trained_vector_files_url = 'c://w2v.txt''
 pre_trained_vector_files_url = '//home//jim/shanghai_index//data//w2v.txt'
-db_url = 'c://data//all.db'
+db_url = '..//data//all.db'
 ##db_url = '//home//jim//shanghai_index//data//all.db'
 train_data_url = '..//data//simplifyweibo_4_moods.csv'
 ##train_data_url = '//home//jim//shanghai_index//data//simplifyweibo_4_moods.csv'
