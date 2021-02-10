@@ -349,17 +349,12 @@ def run_caculate_percend():
     caculate_percend(month_array = month_array, quarter_array = quarter_array, class_dict = c, start_date = '1994-01-06')
     return True
 
-def plot_need(month = 0, class_n = 0):
-    # 输出图表
-    m_array = np.load(month_array_url)
-    q_array = np.load(quarter_array_url)
-    print(m_array.shape)
-    # years, months, classes, stockids
-    need_array = m_array[:,int(month),:,:]
-    print(need_array.shape)
-    rel = np.mean(need_array, axis = -1, keepdims = True)
-    #print(rel)
-    #
+
+
+def plot_class_mean(rel, month, class_n):
+    '''
+        # 找出最能赚钱的类别
+    '''
     class_dict = define_class()
     start_date = '1994-01-06'
     start_year = int(start_date[0:4])
@@ -386,9 +381,71 @@ def plot_need(month = 0, class_n = 0):
     ax[1,0].set_xlabel(u'所有类别历年来{}月份概率率分布kde'.format(str(int(month) + 1)))
     plt.show()
 
+def plot_need(month = 0, class_n = 0):
+    '''
+        # 输出图表
+    '''
 
-    
-    
+    m_array = np.load(month_array_url)
+    q_array = np.load(quarter_array_url)
+    print(m_array.shape)
+    # years, months, classes, stockids
+    #
+    # 判断是否看某类别个股12个月的年平均盈收百分比
+    if month is None:
+        need_array = m_array[:,:,int(class_n),:]
+        #rel = np.mean(need_array, axis = 0, keepdims = True)
+        #print(rel.shape)
+        plot_find_stock(one_class_array = need_array, class_n = class_n)
+    else:
+        need_array = m_array[:,int(month),:,:]
+        rel = np.mean(need_array, axis = -1, keepdims = True)
+        plot_class_mean(rel = rel, month = month, class_n = class_n)
+    return True
+
+def plot_find_stock(one_class_array, class_n):
+    '''
+        # 在类别中找最能赚钱的股票
+    '''
+    class_dict = define_class()
+    start_date = '1994-01-06'
+    start_year = int(start_date[0:4])
+    class_dict = define_class()
+    # make df
+    y_counts, m_counts, s_counts = one_class_array.shape
+    print(one_class_array.shape)
+    month_mean_dict = {}
+    year_mean_dict = {}
+    class_name = list(class_dict.keys())[int(class_n)]
+    year_index = [str(start_year + y) for y in np.arange(y_counts)]
+    month_index = [str(m + 1) + u'月' for m in np.arange(m_counts)]
+    # 按股票分列
+    for s in np.arange(s_counts):
+        stock_id_name = class_dict[list(class_dict.keys())[int(class_n)]][s]
+        # 按月平均。显示每年每只股票中最好收益的股票
+        month_mean = np.mean(one_class_array, axis = 1, keepdims = True)
+        month_mean_dict[stock_id_name] = month_mean[:,0,s].tolist()
+        # 按年平均。显示每月每只股票中最好收益的股票
+        year_mean = np.mean(one_class_array, axis = 0, keepdims = True)
+        year_mean_dict[stock_id_name] = year_mean[0,:,s].tolist()
+    #
+    month_mean_df = pd.DataFrame(month_mean_dict, index = year_index)
+    year_mean_df = pd.DataFrame(year_mean_dict, index = month_index)
+    # show
+    print(month_mean_df)
+    print(year_mean_df)
+    plt.close('all')
+    fig, ax = plt.subplots(1,2)
+    month_mean_df.plot.barh(ax = ax[0])
+    year_mean_df.plot.barh(ax = ax[1])
+    ax[0].set_ylabel('by year')
+    ax[1].set_ylabel('by month')
+####    show_df.T.plot.kde(ax = ax[1,0])
+####    ax[1,0].set_xlabel(u'所有{}类内个股，历年平均按月统计月盈利百分比概率分布kde'.format(list(class_dict.keys())[int(class_n)]))
+    plt.show()
+
+
+
 if __name__=='__main__':
     
     
@@ -409,7 +466,7 @@ if __name__=='__main__':
     '''
     
     # plot result
-    plot_need(month = 1, class_n = 7)
+    plot_need(month = None, class_n = 4)
     
 
 
