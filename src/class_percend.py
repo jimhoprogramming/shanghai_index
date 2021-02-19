@@ -463,7 +463,7 @@ if __name__=='__main__':
     '''
     # plot result
     #class = ['0白酒', '1光伏', '2消费', '3医疗', '4黄金', '5证券', '6大盘', '7有色', '8能源', '9军工', '10芯片']
-    plot_need(month = None, class_n = 2)
+    plot_need(month = 2, class_n = 0)
     
 
 
