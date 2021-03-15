@@ -190,6 +190,8 @@ class short_time_dataset(gdata.Dataset):
         x_text = self.data_text_dict[index_value]
         print(u'text lenght : {}'.format(len(x_text)))
         x_digital_series = self.data_digital.loc[index_value]
+        #print(index_value)
+        #print(x_digital_series)
         x_digital = x_digital_series.tolist()
         x_digital = nd.array(x_digital[:-1])
         y = x_digital_series['y_value']
@@ -247,13 +249,16 @@ class short_time_dataset(gdata.Dataset):
             except:
                 data_text = pd.read_csv(url[0], encoding = 'gb2312',index_col = 0)
         data_digital = pd.read_csv(url[1],index_col = 0)
-        
+        data_digital.drop_duplicates(['str_date'], inplace = True)
         print(data_text.shape)
         data_text.drop_duplicates(['text'], inplace = True)
+        data_text.dropna(how = 'any', inplace =True)
         print(data_text.shape)
+        #print(data_text)
         grouped = data_text.groupby(['date'])
         data_text_dict = {}
         for name, group in grouped:
+            #print(group)
             temp_data = ';'.join(group['text'].tolist())
             data_text_dict[name] = temp_data
         # 按日期先后排序好数据计算所有需要的y值

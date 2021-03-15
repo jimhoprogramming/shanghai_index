@@ -23,7 +23,7 @@ def define_model():
                     num_layers = 2,
                     dense_layers = 10)
     # 初始化参数
-    lr = 0.003
+    lr = 0.0003
     lr_sch = lr_scheduler.FactorScheduler(step=50, factor=0.9)
     optimizer_params={'learning_rate': lr, 'lr_scheduler': lr_sch}
     model.initialize(init.Xavier())

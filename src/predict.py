@@ -33,5 +33,5 @@ def predict(net, date):
     print(u'预测{}的次日上证指数最低位置将会{}'.format(date,s_t_d_obj.y_class_to_value(y_class[0].asscalar())))
 if __name__ == '__main__':
     net = define_model()
-    predict(net = net, date = '2021-01-10')
+    predict(net = net, date = '2021-03-15')
 
