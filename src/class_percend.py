@@ -106,7 +106,7 @@ def plot_class_by_date():
         fig, ax = plt.subplots(2,1)
         print(ax)
         df.T.plot(ax = ax[0])
-        df = df.sub(df['2021-03-02'], axis = 0)
+        df = df.sub(df['2021-04-01'], axis = 0)
         print(u'与本月第一日升幅比较的升幅')
         print(df)
         df.T.plot(ax = ax[1])
@@ -463,7 +463,7 @@ if __name__=='__main__':
     '''
     # plot result
     #class = ['0白酒', '1光伏', '2消费', '3医疗', '4黄金', '5证券', '6大盘', '7有色', '8能源', '9军工', '10芯片']
-    plot_need(month = None, class_n = 8)
+    plot_need(month = 3, class_n = 0)
     
 
 
